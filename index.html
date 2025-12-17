@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Looker Embed Test</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    /* Sidebar estilo menú */
+    .sidebar {
+      width: 200px;
+      background-color: #1E1E2F;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .logo {
+      width: 150px;
+      margin-bottom: 40px;
+    }
+
+    .menu-button {
+      width: 150px;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background-color: #3B3B5A;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .menu-button:hover {
+      background-color: #565678;
+    }
+
+    /* Contenedor del iframe */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar / menú lateral -->
+  <div class="sidebar">
+    <img src="img/logo_mobilize.png" alt="Logo Mobilize" class="logo">
+    <button id="btn5959" class="menu-button">Inicio</button>
+    <button id="btn5978" class="menu-button">Ventas</button>
+    <button id="btn5661" class="menu-button">Informe Comercial</button>
+    <button id="btn5909" class="menu-button">Producción detallada financiación</button>
+  </div>
+
+  <!-- Contenido principal con iframe -->
+  <div class="main-content">
+    <iframe
+      id="looker"
+      src="https://renaultssadev.cloud.looker.com/embed/dashboards/5959?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true">
+    </iframe>
+  </div>
+
+<script>
+const iframe = document.getElementById('looker')
+let brandValue = null     // último value capturado
+let plateCodeValue = null 
+let dealerCodeValue = null
+let monthValue = null
+let yearValue = null
+  
+function loadDashboard(dashboardId) {
+    let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`
+
+    if (brandValue) {
+      const encodedBrand = encodeURIComponent(brandValue)
+      baseUrl += `&Status=${encodedBrand}`
+    }
+    if (plateCodeValue) {
+      const encodedPlateCode = encodeURIComponent(plateCodeValue)
+      baseUrl += `&Sale+Price=${encodedPlateCode}`
+    }
+    if (dealerCodeValue) {
+      const encodedDealerCode = encodeURIComponent(dealerCodeValue)
+      baseUrl += `&Sale+Price=${encodedDealerCode}`
+    }
+    if (monthValue) {
+      const encodedMonth = encodeURIComponent(monthValue)
+      baseUrl += `&Sale+Price=${encodedMonth}`
+    }
+    if (yearValue) {
+      const encodedYear = encodeURIComponent(yearValue)
+      baseUrl += `&Sale+Price=${encodedYear}`
+    }
+
+    iframe.src = baseUrl
+}
+
+
+// Botones
+document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
+document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
+document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
+document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
+  
+// Escuchar eventos del dashboard
+window.addEventListener("message", (event) => {
+  if (event.source !== iframe.contentWindow ||
+      event.origin !== "https://renaultssadev.cloud.looker.com") return
+
+  let data
+  try {
+    data = (typeof event.data === "string") ? JSON.parse(event.data) : event.data
+  } catch(e) {
+    console.error("Error parseando el mensaje:", e)
+    return
+  }
+
+  if (data.type === "dashboard:run:complete") {
+    const filtros = data.dashboard?.dashboard_filters
+    const currentBrand = filtros?.Brand
+    const currentPlateCode= filtros?.["Plate Code"]
+    const currentDealerCode = filtros?.["Dealer Code"]
+    const currentMonth= filtros?.["Fecha Month Name"]
+    const currentYear= filtros?.["Fecha Year"]
+
+    if (currentBrand) {
+      brandValue = currentBrand
+      console.log("Brand actual:", brandValue)
+    }
+    if (currentPlateCode) {
+      plateCodeValue = currentPlateCode
+      console.log("Plate code actual:", plateCodeValue)
+    }
+    if (currentDealerCode) {
+      dealerCodeValue = currentDealerCode
+      console.log("Dealer code actual:", dealerCodeValue)
+    }
+    if (currentMonth) {
+      monthValue = currentMonth
+      console.log("Month actual:", monthValue)
+    }
+    if (currentYear) {
+      yearValue = currentYear
+      console.log("Year actual:", yearValue)
+    }
+  }
+})
+</script>
+
+</body>
+</html>
