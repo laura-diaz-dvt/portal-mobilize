@@ -29,6 +29,28 @@
       padding: 20px 0;
     }
 
+    /* Sidebar oculto */
+    .sidebar.hidden {
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    /* Botón toggle */
+    .toggle-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: black;
+      color: white;
+      border: none;
+      font-size: 22px;
+      padding: 8px 12px;
+      cursor: pointer;
+      z-index: 1000;
+      border-radius: 6px;
+    }
+
     .logo {
       width: 150px;
       margin-bottom: 40px;
@@ -73,8 +95,9 @@
   </style>
 </head>
 <body>
-
+  
   <!-- Sidebar / menú lateral -->
+  <button class="toggle-btn" id="toggleSidebar">☰</button>
   <div class="sidebar">
     <img src="img/logo_mobilize.jpg" alt="Logo Mobilize" class="logo">
     <button id="btn5959" class="menu-button">Inicio</button>
@@ -85,6 +108,7 @@
 
   <!-- Contenido principal con iframe -->
   <div class="main-content">
+    <h1 id="dashboard-title">Bienvenida/o al Portal Mobilize</h1>
     <iframe
       id="looker"
       src="https://renaultssadev.cloud.looker.com/embed/dashboards/5959?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true">
@@ -92,6 +116,15 @@
   </div>
 
 <script>
+const sidebar = document.querySelector('.sidebar')
+const toggleBtn = document.getElementById('toggleSidebar')
+
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('hidden')
+})
+
+const title = document.getElementById('dashboard-title')
+  
 const iframe = document.getElementById('looker')
 let brandValue = null     // último value capturado
 let plateCodeValue = null 
@@ -99,7 +132,9 @@ let dealerCodeValue = null
 let monthValue = null
 let yearValue = null
   
-function loadDashboard(dashboardId) {
+function loadDashboard(dashboardId, dashboardTitle) {
+    title.textContent = dashboardTitle
+    
     let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`
 
     if (brandValue) {
@@ -128,10 +163,10 @@ function loadDashboard(dashboardId) {
 
 
 // Botones
-document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
-document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
-document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
-document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
+document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959, 'Bienvenida/o al Portal Mobilize'))
+document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978, 'Ventas'))
+document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661, 'Informe Comercial'))
+document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909, 'Producción detallada financiación'))
   
 // Escuchar eventos del dashboard
 window.addEventListener("message", (event) => {
