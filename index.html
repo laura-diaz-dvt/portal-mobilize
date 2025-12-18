@@ -148,25 +148,25 @@ function loadDashboard(dashboardId, dashboardTitle) {
       if (dashboardId == 5978) {
         baseUrl += `&Sale+Car+Brand=${encodedBrand}`
       } else {
-        baseUrl += `&Status=${encodedBrand}`
+        baseUrl += `&Brand=${encodedBrand}`
       }
       
     }
     if (plateCodeValue) {
       const encodedPlateCode = encodeURIComponent(plateCodeValue)
-      baseUrl += `&Sale+Price=${encodedPlateCode}`
+      baseUrl += `&Plate+Code=${encodedPlateCode}`
     }
     if (dealerCodeValue) {
       const encodedDealerCode = encodeURIComponent(dealerCodeValue)
-      baseUrl += `&Sale+Price=${encodedDealerCode}`
+      baseUrl += `&Dealer+Code=${encodedDealerCode}`
     }
     if (monthValue) {
       const encodedMonth = encodeURIComponent(monthValue)
-      baseUrl += `&Sale+Price=${encodedMonth}`
+      baseUrl += `&Fecha+Month+Name=${encodedMonth}`
     }
     if (yearValue) {
       const encodedYear = encodeURIComponent(yearValue)
-      baseUrl += `&Sale+Price=${encodedYear}`
+      baseUrl += `&Fecha+Year=${encodedYear}`
     }
 
     iframe.src = baseUrl
