@@ -145,8 +145,10 @@ function loadDashboard(dashboardId, dashboardTitle) {
 
     if (brandValue) {
       const encodedBrand = encodeURIComponent(brandValue)
-      if (dashboardId == 5978) {
+      if (dashboardId === 5978) {
         baseUrl += `&Sale+Car+Brand=${encodedBrand}`
+      } else if (dashboardId === 5909) {
+        baseUrl += `&Operation+Brand=${encodedBrand}`
       } else {
         baseUrl += `&Brand=${encodedBrand}`
       }
@@ -162,11 +164,19 @@ function loadDashboard(dashboardId, dashboardTitle) {
     }
     if (monthValue) {
       const encodedMonth = encodeURIComponent(monthValue)
-      baseUrl += `&Fecha+Month+Name=${encodedMonth}`
+      if (dashboardId === 5909) {
+        baseUrl += `&Fecha+Contratos+Month+Name=${encodedMonth}`
+      } else {
+        baseUrl += `&Fecha+Month+Name=${encodedMonth}`
+      }
     }
     if (yearValue) {
       const encodedYear = encodeURIComponent(yearValue)
-      baseUrl += `&Fecha+Year=${encodedYear}`
+      if (dashboardId === 5909) {
+        baseUrl += `&Fecha+Contratos+Year=${encodedYear}`
+      } else {
+        baseUrl += `&Fecha+Year=${encodedYear}`
+      }
     }
 
     iframe.src = baseUrl
@@ -192,34 +202,21 @@ window.addEventListener("message", (event) => {
     return
   }
 
+
   if (data.type === "dashboard:run:complete") {
     const filtros = data.dashboard?.dashboard_filters
-    const currentBrand = filtros?.Brand || filtros?.["Sale Car Brand"]
+    const currentBrand = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
     const currentPlateCode= filtros?.["Plate Code"]
     const currentDealerCode = filtros?.["Dealer Code"]
-    const currentMonth= filtros?.["Fecha Month Name"]
-    const currentYear= filtros?.["Fecha Year"]
+    const currentMonth= filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
+    const currentYear= filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
 
+    // Para ver los eventos por consola
     if (currentBrand) {
       brandValue = currentBrand
       console.log("Brand actual:", brandValue)
     }
-    if (currentPlateCode) {
-      plateCodeValue = currentPlateCode
-      console.log("Plate code actual:", plateCodeValue)
-    }
-    if (currentDealerCode) {
-      dealerCodeValue = currentDealerCode
-      console.log("Dealer code actual:", dealerCodeValue)
-    }
-    if (currentMonth) {
-      monthValue = currentMonth
-      console.log("Month actual:", monthValue)
-    }
-    if (currentYear) {
-      yearValue = currentYear
-      console.log("Year actual:", yearValue)
-    }
+    
   }
 })
 </script>
