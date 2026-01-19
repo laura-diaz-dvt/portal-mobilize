@@ -130,76 +130,18 @@ toggleBtn.addEventListener('click', () => {
 })
 
 const title = document.getElementById('dashboard-title')
-  
 const iframe = document.getElementById('looker')
-let brandValue = null     // último value capturado
-let plateCodeValue = null 
-let dealerCodeValue = null
-let monthValue = null
-let yearValue = null
 
-// Diccionario de filtros por dashboard, con los nombres que Looker espera
-const dashboards = {
-  5959: { 
-    title: "Bienvenida/o al Portal Mobilize",
-    filters: () => ({ Brand: brandValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue })
-  },
-  5978: { 
-    title: "Ventas",
-    filters: () => ({ "Sale Car Brand": brandValue })
-  },
-  5661: {
-    title: "Informe Comercial",
-    filters: () => ({ Brand: brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue })
-  },
-  5909: {
-    title: "Producción detallada financiación",
-    filters: () => ({ "Operation Brand": brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Contratos Month Name": monthValue, "Fecha Contratos Year": yearValue })
-  }
+// Filtros comunes a capturar
+const filterValues = {
+  Brand: null,
+  PlateCode: null,
+  DealerCode: null,
+  Month: null,
+  Year: null
 }
-
-
-function loadDashboard(dashboardId) {
-  const dashboard = dashboards[dashboardId];
-  if (!dashboard) return console.error("Dashboard no definido:", dashboardId);
-
-  // Cambiar título
-  title.textContent = dashboard.title;
-
-  // URL base
-  let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
-
-  // Obtener filtros actuales usando la función
-  const filters = dashboard.filters();
-
-  // Recorrer los filtros y añadirlos a la URL
-  for (const [key, value] of Object.entries(filters)) {
-    if (!value) continue;
-    baseUrl += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-  }
-
-  // Cargar en iframe
-  iframe.src = baseUrl;
-}
-
-
-// Botones
-document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
-document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
-document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
-document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
-
-
-// Mapa de variables de JS para cada filtro genérico
-const filterVars = {
-  Brand: () => brandValue,
-  PlateCode: () => plateCodeValue,
-  DealerCode: () => dealerCodeValue,
-  Month: () => monthValue,
-  Year: () => yearValue
-}
-
-// Mapa de nombres que pueden venir desde Looker
+  
+// Nombres que Looker puede enviar para cada filtro
 const filterKeys = {
   Brand: ["Brand", "Sale Car Brand", "Operation Brand"],
   PlateCode: ["Plate Code"],
@@ -207,15 +149,59 @@ const filterKeys = {
   Month: ["Fecha Month Name", "Fecha Contratos Month Name"],
   Year: ["Fecha Year", "Fecha Contratos Year"]
 }
+  
+// Diccionario de filtros por dashboard, con los nombres que Looker espera
+const dashboards = {
+  5959: { 
+    title: "Bienvenida/o al Portal Mobilize",
+    filters: () => ({ Brand: filterValues.Brand, Month: filterValues.Month, Year: filterValues.Year })
+  },
+  5978: { 
+    title: "Ventas",
+    filters: () => ({ Brand: filterValues.Brand })
+  },
+  5661: {
+    title: "Informe Comercial",
+    filters: () => ({Brand: filterValues.Brand, PlateCode: filterValues.PlateCode, DealerCode: filterValues.DealerCode, Month: filterValues.Month, Year: filterValues.Year })
+  },
+  5909: {
+    title: "Producción detallada financiación",
+    filters: () => ({ Brand: filterValues.Brand, PlateCode: filterValues.PlateCode, DealerCode: filterValues.DealerCode, Month: filterValues.Month, Year: filterValues.Year })
+  }
+}
+
+  
+function loadDashboard(dashboardId) {
+  const dashboard = dashboards[dashboardId];
+  if (!dashboard) return console.error("Dashboard no definido:", dashboardId);
+
+  title.textContent = dashboard.title;
+
+  let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
+
+  const filters = dashboard.filters(); 
+  for (const [key, lookerName] of Object.entries(filters)) {
+    const value = filters[key]; 
+    if (!value) continue;
+    baseUrl += `&${encodeURIComponent(lookerName)}=${encodeURIComponent(value)}`;
+  }
+  
+  iframe.src = baseUrl;
+}
+
+// Botones
+document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
+document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
+document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
+document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
 
 window.addEventListener("message", (event) => {
-  if (event.source !== iframe.contentWindow ||
-      event.origin !== "https://renaultssadev.cloud.looker.com") return;
+  if (event.source !== iframe.contentWindow || event.origin !== "https://renaultssadev.cloud.looker.com") return;
 
   let data;
   try {
     data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-  } catch (e) {
+  } catch(e) {
     console.error("Error parseando el mensaje:", e);
     return;
   }
@@ -223,70 +209,15 @@ window.addEventListener("message", (event) => {
   if (data.type === "dashboard:run:complete") {
     const filtros = data.dashboard?.dashboard_filters || {};
 
-    // Actualizar todas las variables de forma dinámica
-    for (const [varName, keys] of Object.entries(filterKeys)) {
-      for (const key of keys) {
-        if (filtros[key] !== undefined && filtros[key] !== null) {
-          switch(varName) {
-            case "Brand": brandValue = filtros[key]; break;
-            case "PlateCode": plateCodeValue = filtros[key]; break;
-            case "DealerCode": dealerCodeValue = filtros[key]; break;
-            case "Month": monthValue = filtros[key]; break;
-            case "Year": yearValue = filtros[key]; break;
-          }
-          break; // una vez encontramos un valor válido, salimos del bucle de keys
-        }
-      }
+    for (const [key, aliases] of Object.entries(filterKeys)) {
+      const value = aliases.map(alias => filtros[alias]).find(v => v !== undefined && v !== null && v !== "");
+      if (value !== undefined) filterValues[key] = value;
     }
 
-    // Consola opcional
-    console.log("Brand:", brandValue, "Month:", monthValue, "Plate:", plateCodeValue, "Dealer:", dealerCodeValue, "Year:", yearValue);
+    console.log("Filtros actuales (heredados correctamente):", filterValues);
   }
 })
 
-// Escuchar eventos del dashboard
-// window.addEventListener("message", (event) => {
-//   if (event.source !== iframe.contentWindow ||
-//       event.origin !== "https://renaultssadev.cloud.looker.com") return
-
-//   let data
-//   try {
-//     data = (typeof event.data === "string") ? JSON.parse(event.data) : event.data
-//   } catch(e) {
-//     console.error("Error parseando el mensaje:", e)
-//     return
-//   }
-
-
-//   if (data.type === "dashboard:run:complete") {
-//     const filtros = data.dashboard?.dashboard_filters
-
-//     if (filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]) {
-//       brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"];
-//     }
-    
-//     if (filtros?.["Plate Code"] !== undefined) {
-//       plateCodeValue = filtros?.["Plate Code"];
-//     }
-    
-//     if (filtros?.["Dealer Code"] !== undefined) {
-//       dealerCodeValue = filtros?.["Dealer Code"];
-//     }
-    
-//     if (filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"]) {
-//       monthValue = filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"];
-//     }
-    
-//     if (filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]) {
-//       yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"];
-//     }
-
-
-//     // Para ver los eventos por consola
-//     if (brandValue) { console.log("Brand actual:", brandValue) } 
-//     // if (monthValue) { console.log("Month actual:", monthValue) }
-//   }
-// })
 </script>
 
 </body>
