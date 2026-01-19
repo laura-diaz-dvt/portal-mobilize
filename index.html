@@ -207,12 +207,11 @@ window.addEventListener("message", (event) => {
     const filtros = data.dashboard?.dashboard_filters
 
     brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
-    const currentPlateCode = filtros?.["Plate Code"]
-    const currentDealerCode = filtros?.["Dealer Code"]
+    plateCodeValue = filtros?.["Plate Code"]
+    dealerCodeValue = filtros?.["Dealer Code"]
     monthValue = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
-    const currentYear = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
+    yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
 
-    plateCodeValue = currentPlateCode
     // Para ver los eventos por consola
     if (brandValue) { console.log("Brand actual:", brandValue) } 
     if (monthValue) { console.log("Month actual:", monthValue) }
