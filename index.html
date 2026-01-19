@@ -188,50 +188,105 @@ document.getElementById('btn5959').addEventListener('click', () => loadDashboard
 document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
 document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
 document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
-  
-// Escuchar eventos del dashboard
+
+
+// Mapa de variables de JS para cada filtro genérico
+const filterVars = {
+  Brand: () => brandValue,
+  PlateCode: () => plateCodeValue,
+  DealerCode: () => dealerCodeValue,
+  Month: () => monthValue,
+  Year: () => yearValue
+}
+
+// Mapa de nombres que pueden venir desde Looker
+const filterKeys = {
+  Brand: ["Brand", "Sale Car Brand", "Operation Brand"],
+  PlateCode: ["Plate Code"],
+  DealerCode: ["Dealer Code"],
+  Month: ["Fecha Month Name", "Fecha Contratos Month Name"],
+  Year: ["Fecha Year", "Fecha Contratos Year"]
+}
+
 window.addEventListener("message", (event) => {
   if (event.source !== iframe.contentWindow ||
-      event.origin !== "https://renaultssadev.cloud.looker.com") return
+      event.origin !== "https://renaultssadev.cloud.looker.com") return;
 
-  let data
+  let data;
   try {
-    data = (typeof event.data === "string") ? JSON.parse(event.data) : event.data
-  } catch(e) {
-    console.error("Error parseando el mensaje:", e)
-    return
+    data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+  } catch (e) {
+    console.error("Error parseando el mensaje:", e);
+    return;
   }
-
 
   if (data.type === "dashboard:run:complete") {
-    const filtros = data.dashboard?.dashboard_filters
+    const filtros = data.dashboard?.dashboard_filters || {};
 
-    if (filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]) {
-      brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"];
-    }
-    
-    if (filtros?.["Plate Code"] !== undefined) {
-      plateCodeValue = filtros?.["Plate Code"];
-    }
-    
-    if (filtros?.["Dealer Code"] !== undefined) {
-      dealerCodeValue = filtros?.["Dealer Code"];
-    }
-    
-    if (filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"]) {
-      monthValue = filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"];
-    }
-    
-    if (filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]) {
-      yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"];
+    // Actualizar todas las variables de forma dinámica
+    for (const [varName, keys] of Object.entries(filterKeys)) {
+      for (const key of keys) {
+        if (filtros[key] !== undefined && filtros[key] !== null) {
+          switch(varName) {
+            case "Brand": brandValue = filtros[key]; break;
+            case "PlateCode": plateCodeValue = filtros[key]; break;
+            case "DealerCode": dealerCodeValue = filtros[key]; break;
+            case "Month": monthValue = filtros[key]; break;
+            case "Year": yearValue = filtros[key]; break;
+          }
+          break; // una vez encontramos un valor válido, salimos del bucle de keys
+        }
+      }
     }
 
-
-    // Para ver los eventos por consola
-    if (brandValue) { console.log("Brand actual:", brandValue) } 
-    // if (monthValue) { console.log("Month actual:", monthValue) }
+    // Consola opcional
+    console.log("Brand:", brandValue, "Month:", monthValue, "Plate:", plateCodeValue, "Dealer:", dealerCodeValue, "Year:", yearValue);
   }
 })
+
+// Escuchar eventos del dashboard
+// window.addEventListener("message", (event) => {
+//   if (event.source !== iframe.contentWindow ||
+//       event.origin !== "https://renaultssadev.cloud.looker.com") return
+
+//   let data
+//   try {
+//     data = (typeof event.data === "string") ? JSON.parse(event.data) : event.data
+//   } catch(e) {
+//     console.error("Error parseando el mensaje:", e)
+//     return
+//   }
+
+
+//   if (data.type === "dashboard:run:complete") {
+//     const filtros = data.dashboard?.dashboard_filters
+
+//     if (filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]) {
+//       brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"];
+//     }
+    
+//     if (filtros?.["Plate Code"] !== undefined) {
+//       plateCodeValue = filtros?.["Plate Code"];
+//     }
+    
+//     if (filtros?.["Dealer Code"] !== undefined) {
+//       dealerCodeValue = filtros?.["Dealer Code"];
+//     }
+    
+//     if (filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"]) {
+//       monthValue = filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"];
+//     }
+    
+//     if (filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]) {
+//       yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"];
+//     }
+
+
+//     // Para ver los eventos por consola
+//     if (brandValue) { console.log("Brand actual:", brandValue) } 
+//     // if (monthValue) { console.log("Month actual:", monthValue) }
+//   }
+// })
 </script>
 
 </body>
