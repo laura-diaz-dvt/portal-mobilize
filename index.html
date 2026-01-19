@@ -142,19 +142,19 @@ let yearValue = null
 const dashboards = {
   5959: { 
     title: "Bienvenida/o al Portal Mobilize",
-    filters: { Brand: brandValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue }
+    filters: () => ({ Brand: brandValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue })
   },
   5978: { 
     title: "Ventas",
-    filters: { "Sale Car Brand": brandValue}
+    filters: () => ({ "Sale Car Brand": brandValue })
   },
   5661: {
     title: "Informe Comercial",
-    filters: { Brand: brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue }
+    filters: () => ({ Brand: brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue })
   },
   5909: {
     title: "Producción detallada financiación",
-    filters: { "Operation Brand": brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Contratos Month Name": monthValue, "Fecha Contratos Year": yearValue }
+    filters: () => ({ "Operation Brand": brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Contratos Month Name": monthValue, "Fecha Contratos Year": yearValue })
   }
 }
 
@@ -169,15 +169,19 @@ function loadDashboard(dashboardId) {
   // URL base
   let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
 
-  // Recorrer los filtros de este dashboard
-  for (const [key, value] of Object.entries(dashboard.filters)) {
-    if (!value) continue; // ignorar si no hay valor
+  // Obtener filtros actuales usando la función
+  const filters = dashboard.filters();
+
+  // Recorrer los filtros y añadirlos a la URL
+  for (const [key, value] of Object.entries(filters)) {
+    if (!value) continue;
     baseUrl += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
   }
 
   // Cargar en iframe
   iframe.src = baseUrl;
 }
+
 
 // Botones
 document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
@@ -225,7 +229,7 @@ window.addEventListener("message", (event) => {
 
     // Para ver los eventos por consola
     if (brandValue) { console.log("Brand actual:", brandValue) } 
-    if (monthValue) { console.log("Month actual:", monthValue) }
+    // if (monthValue) { console.log("Month actual:", monthValue) }
   }
 })
 </script>
