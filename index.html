@@ -182,7 +182,7 @@ let yearValue = null
 //     iframe.src = baseUrl
 // }
 
-const dashboardFilters = {
+const dashboardFilters = () => ({
   Brand: brandValue,
   "Sale Car Brand": brandValue,
   "Operation Brand": brandValue,
@@ -192,7 +192,8 @@ const dashboardFilters = {
   "Fecha Contratos Month Name": monthValue,
   "Fecha Year": yearValue,
   "Fecha Contratos Year": yearValue
-}
+})
+
 
 const dashboardFilterMap = {
   5978: { Brand: "Sale Car Brand" },
@@ -204,18 +205,14 @@ function loadDashboard(dashboardId, dashboardTitle) {
 
   let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
 
-  // Obtener el mapa especial para este dashboard
   const specialMap = dashboardFilterMap[dashboardId] || {};
+  const filters = dashboardFilters(); // <--- ahora toma los valores actuales de los lets
 
-  // Recorrer todos los filtros
-  for (const [key, value] of Object.entries(dashboardFilters)) {
-    if (!value) continue; // ignorar si no hay valor
+  for (const [key, value] of Object.entries(filters)) {
+    if (!value) continue;
 
-    // Determinar el nombre de parámetro a usar
     const paramName = specialMap[key] || key;
-
-    const encoded = encodeURIComponent(value);
-    baseUrl += `&${paramName}=${encoded}`;
+    baseUrl += `&${paramName}=${encodeURIComponent(value)}`;
   }
 
   iframe.src = baseUrl;
@@ -269,7 +266,7 @@ window.addEventListener("message", (event) => {
 
     // Para ver los eventos por consola
     if (brandValue) { console.log("Brand actual:", brandValue) } 
-    if (monthValue) { console.log("Month actual:", monthValue) }
+    // if (monthValue) { console.log("Month actual:", monthValue) }
   }
 })
 </script>
