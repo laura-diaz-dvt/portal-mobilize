@@ -138,49 +138,89 @@ let dealerCodeValue = null
 let monthValue = null
 let yearValue = null
   
-function loadDashboard(dashboardId, dashboardTitle) {
-    title.textContent = dashboardTitle
+// function loadDashboard(dashboardId, dashboardTitle) {
+//     title.textContent = dashboardTitle
     
-    let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`
+//     let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`
 
-    if (brandValue) {
-      const encodedBrand = encodeURIComponent(brandValue)
-      if (dashboardId === 5978) {
-        baseUrl += `&Sale+Car+Brand=${encodedBrand}`
-      } else if (dashboardId === 5909) {
-        baseUrl += `&Operation+Brand=${encodedBrand}`
-      } else {
-        baseUrl += `&Brand=${encodedBrand}`
-      }
+//     if (brandValue) {
+//       const encodedBrand = encodeURIComponent(brandValue)
+//       if (dashboardId === 5978) {
+//         baseUrl += `&Sale+Car+Brand=${encodedBrand}`
+//       } else if (dashboardId === 5909) {
+//         baseUrl += `&Operation+Brand=${encodedBrand}`
+//       } else {
+//         baseUrl += `&Brand=${encodedBrand}`
+//       }
       
-    }
-    if (plateCodeValue) {
-      const encodedPlateCode = encodeURIComponent(plateCodeValue)
-      baseUrl += `&Plate+Code=${encodedPlateCode}`
-    }
-    if (dealerCodeValue) {
-      const encodedDealerCode = encodeURIComponent(dealerCodeValue)
-      baseUrl += `&Dealer+Code=${encodedDealerCode}`
-    }
-    if (monthValue) {
-      const encodedMonth = encodeURIComponent(monthValue)
-      if (dashboardId === 5909) {
-        baseUrl += `&Fecha+Contratos+Month+Name=${encodedMonth}`
-      } else {
-        baseUrl += `&Fecha+Month+Name=${encodedMonth}`
-      }
-    }
-    if (yearValue) {
-      const encodedYear = encodeURIComponent(yearValue)
-      if (dashboardId === 5909) {
-        baseUrl += `&Fecha+Contratos+Year=${encodedYear}`
-      } else {
-        baseUrl += `&Fecha+Year=${encodedYear}`
-      }
-    }
+//     }
+//     if (plateCodeValue) {
+//       const encodedPlateCode = encodeURIComponent(plateCodeValue)
+//       baseUrl += `&Plate+Code=${encodedPlateCode}`
+//     }
+//     if (dealerCodeValue) {
+//       const encodedDealerCode = encodeURIComponent(dealerCodeValue)
+//       baseUrl += `&Dealer+Code=${encodedDealerCode}`
+//     }
+//     if (monthValue) {
+//       const encodedMonth = encodeURIComponent(monthValue)
+//       if (dashboardId === 5909) {
+//         baseUrl += `&Fecha+Contratos+Month+Name=${encodedMonth}`
+//       } else {
+//         baseUrl += `&Fecha+Month+Name=${encodedMonth}`
+//       }
+//     }
+//     if (yearValue) {
+//       const encodedYear = encodeURIComponent(yearValue)
+//       if (dashboardId === 5909) {
+//         baseUrl += `&Fecha+Contratos+Year=${encodedYear}`
+//       } else {
+//         baseUrl += `&Fecha+Year=${encodedYear}`
+//       }
+//     }
 
-    iframe.src = baseUrl
+//     iframe.src = baseUrl
+// }
+
+const dashboardFilters = {
+  Brand: brandValue,
+  "Sale Car Brand": brandValue,
+  "Operation Brand": brandValue,
+  "Plate Code": plateCodeValue,
+  "Dealer Code": dealerCodeValue,
+  "Fecha Month Name": monthValue,
+  "Fecha Contratos Month Name": monthValue,
+  "Fecha Year": yearValue,
+  "Fecha Contratos Year": yearValue
 }
+
+const dashboardFilterMap = {
+  5978: { Brand: "Sale Car Brand" },
+  5909: { Brand: "Operation Brand", "Fecha Month Name": "Fecha Contratos Month Name", "Fecha Year": "Fecha Contratos Year" }
+}
+
+function loadDashboard(dashboardId, dashboardTitle) {
+  title.textContent = dashboardTitle;
+
+  let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
+
+  // Obtener el mapa especial para este dashboard
+  const specialMap = dashboardFilterMap[dashboardId] || {};
+
+  // Recorrer todos los filtros
+  for (const [key, value] of Object.entries(dashboardFilters)) {
+    if (!value) continue; // ignorar si no hay valor
+
+    // Determinar el nombre de parámetro a usar
+    const paramName = specialMap[key] || key;
+
+    const encoded = encodeURIComponent(value);
+    baseUrl += `&${paramName}=${encoded}`;
+  }
+
+  iframe.src = baseUrl;
+}
+
 
 
 // Botones
@@ -206,12 +246,6 @@ window.addEventListener("message", (event) => {
   if (data.type === "dashboard:run:complete") {
     const filtros = data.dashboard?.dashboard_filters
 
-    // brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
-    // plateCodeValue = filtros?.["Plate Code"]
-    // dealerCodeValue = filtros?.["Dealer Code"]
-    // monthValue = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
-    // yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
-
     if (filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]) {
       brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"];
     }
@@ -235,7 +269,7 @@ window.addEventListener("message", (event) => {
 
     // Para ver los eventos por consola
     if (brandValue) { console.log("Brand actual:", brandValue) } 
-    // if (monthValue) { console.log("Month actual:", monthValue) }
+    if (monthValue) { console.log("Month actual:", monthValue) }
   }
 })
 </script>
