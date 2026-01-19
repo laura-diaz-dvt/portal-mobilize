@@ -154,38 +154,42 @@ const filterKeys = {
 const dashboards = {
   5959: { 
     title: "Bienvenida/o al Portal Mobilize",
-    filters: () => ({ Brand: filterValues.Brand, Month: filterValues.Month, Year: filterValues.Year })
+    filters: { Brand: "Brand",  Month: "Fecha Month Name", Year: "Fecha Year" }
   },
   5978: { 
     title: "Ventas",
-    filters: () => ({ Brand: filterValues.Brand })
+    filters: { Brand: "Sale Car Brand" }
   },
   5661: {
     title: "Informe Comercial",
-    filters: () => ({Brand: filterValues.Brand, PlateCode: filterValues.PlateCode, DealerCode: filterValues.DealerCode, Month: filterValues.Month, Year: filterValues.Year })
+    filters: { Brand: "Brand", PlateCode: "Plate Code", DealerCode: "Dealer Code", Month: "Fecha Month Name", Year: "Fecha Year" }
   },
   5909: {
     title: "Producción detallada financiación",
-    filters: () => ({ Brand: filterValues.Brand, PlateCode: filterValues.PlateCode, DealerCode: filterValues.DealerCode, Month: filterValues.Month, Year: filterValues.Year })
+    filters: { Brand: "Operation Brand", PlateCode: "Plate Code", DealerCode: "Dealer Code", Month: "Fecha Contratos Month Name", Year: "Fecha Contratos Year" }
   }
 }
 
-  
+
+
 function loadDashboard(dashboardId) {
   const dashboard = dashboards[dashboardId];
   if (!dashboard) return console.error("Dashboard no definido:", dashboardId);
 
   title.textContent = dashboard.title;
 
-  let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
+  let baseUrl =
+    `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}` +
+    `?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
 
-  const filters = dashboard.filters(); 
-  for (const [key, lookerName] of Object.entries(filters)) {
-    const value = filters[key]; 
+  // recorrer los filtros definidos para ESTE dashboard
+  for (const [filterKey, lookerName] of Object.entries(dashboard.filters)) {
+    const value = filterValues[filterKey];
     if (!value) continue;
+
     baseUrl += `&${encodeURIComponent(lookerName)}=${encodeURIComponent(value)}`;
   }
-  
+
   iframe.src = baseUrl;
 }
 
