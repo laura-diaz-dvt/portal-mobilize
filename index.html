@@ -137,94 +137,53 @@ let plateCodeValue = null
 let dealerCodeValue = null
 let monthValue = null
 let yearValue = null
-  
-// function loadDashboard(dashboardId, dashboardTitle) {
-//     title.textContent = dashboardTitle
-    
-//     let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`
 
-//     if (brandValue) {
-//       const encodedBrand = encodeURIComponent(brandValue)
-//       if (dashboardId === 5978) {
-//         baseUrl += `&Sale+Car+Brand=${encodedBrand}`
-//       } else if (dashboardId === 5909) {
-//         baseUrl += `&Operation+Brand=${encodedBrand}`
-//       } else {
-//         baseUrl += `&Brand=${encodedBrand}`
-//       }
-      
-//     }
-//     if (plateCodeValue) {
-//       const encodedPlateCode = encodeURIComponent(plateCodeValue)
-//       baseUrl += `&Plate+Code=${encodedPlateCode}`
-//     }
-//     if (dealerCodeValue) {
-//       const encodedDealerCode = encodeURIComponent(dealerCodeValue)
-//       baseUrl += `&Dealer+Code=${encodedDealerCode}`
-//     }
-//     if (monthValue) {
-//       const encodedMonth = encodeURIComponent(monthValue)
-//       if (dashboardId === 5909) {
-//         baseUrl += `&Fecha+Contratos+Month+Name=${encodedMonth}`
-//       } else {
-//         baseUrl += `&Fecha+Month+Name=${encodedMonth}`
-//       }
-//     }
-//     if (yearValue) {
-//       const encodedYear = encodeURIComponent(yearValue)
-//       if (dashboardId === 5909) {
-//         baseUrl += `&Fecha+Contratos+Year=${encodedYear}`
-//       } else {
-//         baseUrl += `&Fecha+Year=${encodedYear}`
-//       }
-//     }
-
-//     iframe.src = baseUrl
-// }
-
-const dashboardFilters = () => ({
-  Brand: brandValue,
-  "Sale Car Brand": brandValue,
-  "Operation Brand": brandValue,
-  "Plate Code": plateCodeValue,
-  "Dealer Code": dealerCodeValue,
-  "Fecha Month Name": monthValue,
-  "Fecha Contratos Month Name": monthValue,
-  "Fecha Year": yearValue,
-  "Fecha Contratos Year": yearValue
-})
-
-
-const dashboardFilterMap = {
-  5978: { Brand: "Sale Car Brand" },
-  5909: { Brand: "Operation Brand", "Fecha Month Name": "Fecha Contratos Month Name", "Fecha Year": "Fecha Contratos Year" }
+// Diccionario de filtros por dashboard, con los nombres que Looker espera
+const dashboards = {
+  5959: { 
+    title: "Bienvenida/o al Portal Mobilize",
+    filters: { Brand: brandValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue }
+  },
+  5978: { 
+    title: "Ventas",
+    filters: { "Sale Car Brand": brandValue}
+  },
+  5661: {
+    title: "Informe Comercial",
+    filters: { Brand: brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Month Name": monthValue, "Fecha Year": yearValue }
+  },
+  5909: {
+    title: "Producción detallada financiación",
+    filters: { "Operation Brand": brandValue, "Plate Code": plateCodeValue, "Dealer Code": dealerCodeValue, "Fecha Contratos Month Name": monthValue, "Fecha Contratos Year": yearValue }
+  }
 }
 
-function loadDashboard(dashboardId, dashboardTitle) {
-  title.textContent = dashboardTitle;
 
+function loadDashboard(dashboardId) {
+  const dashboard = dashboards[dashboardId];
+  if (!dashboard) return console.error("Dashboard no definido:", dashboardId);
+
+  // Cambiar título
+  title.textContent = dashboard.title;
+
+  // URL base
   let baseUrl = `https://renaultssadev.cloud.looker.com/embed/dashboards/${dashboardId}?embed_domain=https://laura-diaz-dvt.github.io&sdk=3&allow_login_screen=true`;
 
-  const specialMap = dashboardFilterMap[dashboardId] || {};
-  const filters = dashboardFilters(); // <--- ahora toma los valores actuales de los lets
-
-  for (const [key, value] of Object.entries(filters)) {
-    if (!value) continue;
-
-    const paramName = specialMap[key] || key;
-    baseUrl += `&${paramName}=${encodeURIComponent(value)}`;
+  // Recorrer los filtros de este dashboard
+  for (const [key, value] of Object.entries(dashboard.filters)) {
+    if (!value) continue; // ignorar si no hay valor
+    baseUrl += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
   }
 
+  // Cargar en iframe
   iframe.src = baseUrl;
 }
 
-
-
 // Botones
-document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959, 'Bienvenida/o al Portal Mobilize'))
-document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978, 'Ventas'))
-document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661, 'Informe Comercial'))
-document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909, 'Producción detallada financiación'))
+document.getElementById('btn5959').addEventListener('click', () => loadDashboard(5959))
+document.getElementById('btn5978').addEventListener('click', () => loadDashboard(5978))
+document.getElementById('btn5661').addEventListener('click', () => loadDashboard(5661))
+document.getElementById('btn5909').addEventListener('click', () => loadDashboard(5909))
   
 // Escuchar eventos del dashboard
 window.addEventListener("message", (event) => {
