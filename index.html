@@ -212,7 +212,7 @@ window.addEventListener("message", (event) => {
     const currentMonth = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
     const currentYear = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
 
-    const otherMonth = data.dashboard?.dashboard_elements?.find(el => el.result_maker?.filterables?.["Fecha Month Name"])?.result_maker.filterables["Fecha Month Name"].value
+    // const otherMonth = data.dashboard?.dashboard_elements?.find(el => el.result_maker?.filterables?.["Fecha Month Name"])?.result_maker.filterables["Fecha Month Name"].value
     
     // Para ver los eventos por consola
     if (currentBrand) {
@@ -223,10 +223,10 @@ window.addEventListener("message", (event) => {
       monthValue = currentMonth
       console.log("Month actual:", monthValue)
     }
-    if (otherMonth) {
-      monthoValue = otherMonth
-      console.log("Other Month actual:", monthoValue)
-    }
+    // if (otherMonth) {
+    //   monthoValue = otherMonth
+    //   console.log("Other Month actual:", monthoValue)
+    // }
     
   }
 })
