@@ -205,16 +205,27 @@ window.addEventListener("message", (event) => {
 
   if (data.type === "dashboard:run:complete") {
     const filtros = data.dashboard?.dashboard_filters
+    const elements = data.dashboard?.dashboard_elements
     const currentBrand = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
-    const currentPlateCode= filtros?.["Plate Code"]
+    const currentPlateCode = filtros?.["Plate Code"]
     const currentDealerCode = filtros?.["Dealer Code"]
-    const currentMonth= filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
-    const currentYear= filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
+    const currentMonth = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
+    const currentYear = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
 
+    const otherMonth = elements.find(el => el.result_maker?.filterables?.["Fecha Month Name"])?.result_maker.filterables["Fecha Month Name"].value;
+    
     // Para ver los eventos por consola
     if (currentBrand) {
       brandValue = currentBrand
       console.log("Brand actual:", brandValue)
+    } 
+    if (currentMonth) {
+      monthValue = currentMonth
+      console.log("Month actual:", monthValue)
+    }
+    if (otherMonth) {
+      monthoValue = otherMonth
+      console.log("Other Month actual:", monthoValue)
     }
     
   }
