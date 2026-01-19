@@ -206,15 +206,36 @@ window.addEventListener("message", (event) => {
   if (data.type === "dashboard:run:complete") {
     const filtros = data.dashboard?.dashboard_filters
 
-    brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
-    plateCodeValue = filtros?.["Plate Code"]
-    dealerCodeValue = filtros?.["Dealer Code"]
-    monthValue = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
-    yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
+    // brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]
+    // plateCodeValue = filtros?.["Plate Code"]
+    // dealerCodeValue = filtros?.["Dealer Code"]
+    // monthValue = filtros?.["Fecha Month Name"]  || filtros?.["Fecha Contratos Month Name"]
+    // yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]
+
+    if (filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"]) {
+      brandValue = filtros?.Brand || filtros?.["Sale Car Brand"] || filtros?.["Operation Brand"];
+    }
+    
+    if (filtros?.["Plate Code"] !== undefined) {
+      plateCodeValue = filtros?.["Plate Code"];
+    }
+    
+    if (filtros?.["Dealer Code"] !== undefined) {
+      dealerCodeValue = filtros?.["Dealer Code"];
+    }
+    
+    if (filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"]) {
+      monthValue = filtros?.["Fecha Month Name"] || filtros?.["Fecha Contratos Month Name"];
+    }
+    
+    if (filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"]) {
+      yearValue = filtros?.["Fecha Year"] || filtros?.["Fecha Contratos Year"];
+    }
+
 
     // Para ver los eventos por consola
     if (brandValue) { console.log("Brand actual:", brandValue) } 
-    if (monthValue) { console.log("Month actual:", monthValue) }
+    // if (monthValue) { console.log("Month actual:", monthValue) }
   }
 })
 </script>
