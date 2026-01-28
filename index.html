@@ -218,9 +218,8 @@ window.addEventListener("message", (event) => {
       if (value !== undefined) filterValues[key] = value;
     }
 
-    // console.log("Filtros actuales (heredados correctamente):", filterValues);
-    console.log("Usuario app:", currentUser);
-    console.log("Evento Looker:", event.data);
+    console.log("Filtros actuales (heredados correctamente):", filterValues);
+    console.log("Evento Looker recibido:", { event, data });
   }
 })
 
